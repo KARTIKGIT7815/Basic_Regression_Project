@@ -1,24 +1,21 @@
-from flask import Flask, render_template, request, jsonify
+# Required Libraries
+from flask import Flask, render_template, request
 import pickle
 import pandas as pd
-import numpy as np
 from sklearn.preprocessing import StandardScaler
 
 application = Flask(__name__)
 app=application
-## Data
+
+# Data
 data = pickle.load(open("models/df.pkl", "rb"))
 
-## Model
+# Model
 model = pickle.load(open("models/model_rid.pkl", "rb"))
 
-## Scaler
+# Scaler
 scaler = pickle.load(open("models/scaler.pkl", "rb"))
 
-# column_names = data.columns
-# columns_df = pd.DataFrame(column_names, columns=["Column Name"])
-
-# columns_df.to_csv("column_names.csv", index=False)
 
 @app.route("/")
 def hello_world():
@@ -27,25 +24,28 @@ def hello_world():
 @app.route("/predictdata", methods=['GET', 'POST'])
 def predict_datapoint():
     if request.method=="POST":
+        # Getting Data in the form of Dict
         form_data = request.form.to_dict()
+
+        # Seprating Numerical Columns and Categorical Columns
         for key, value in form_data.items():  
             try:
-                form_data[key] = float(value)  # Convert if it's a valid number
+                form_data[key] = float(value)  
             except ValueError:
                 pass  
         
+        # Creating Dataset of Seperating Columns
         df = pd.DataFrame([form_data])
-        print(df)
-        
-        S_scaled = scaler.transform(df[df.columns])
 
-        print('Scaling_Value',S_scaled)
-        yp = model.predict(S_scaled)
+        # Scaling the Numerical Columns
+        Scaling = scaler.transform(df[df.columns])
 
+        # Prediction
+        Prediction = model.predict(Scaling)
 
-        return render_template('home.html',result=yp[0])
+        # Returning the Result to webpage
+        return render_template('home.html',result=Prediction[0])
     
-
     else:
         return render_template('home.html')
 
