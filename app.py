@@ -4,8 +4,8 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import StandardScaler
 
-app = Flask(__name__)
-
+application = Flask(__name__)
+app=application
 ## Data
 data = pickle.load(open("models/df.pkl", "rb"))
 
